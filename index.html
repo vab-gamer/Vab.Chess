@@ -2,79 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vab.Chess</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #dce3e7, #f0f3f8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    header {
-      text-align: center;
-      margin: 1rem 0;
-    }
-
-    h1 {
-      font-size: 2rem;
-      color: #333;
-    }
-
-    .board-container {
-      width: 90vmin;
-      height: 90vmin;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      border: 4px solid #333;
-    }
-
-    .cell {
-      width: 100%;
-      height: 100%;
-    }
-
-    .dark {
-      background-color: #769656;
-    }
-
-    .light {
-      background-color: #eeeed2;
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #555;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vab Chess</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Welcome to Vab.Chess</h1>
-    <p>2D Web Chess Platform</p>
-  </header>
-
-  <div class="board-container" id="chessBoard"></div>
-
-  <footer>
-    Made by Vab-Gamer | Online Chess Coming Soon
-  </footer>
-
-  <script>
-    const board = document.getElementById('chessBoard');
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.classList.add((row + col) % 2 === 0 ? 'light' : 'dark');
-        board.appendChild(cell);
-      }
-    }
-  </script>
+  <h1>Vab Chess</h1>
+  <div id="board"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.css" />
+  <script src="script.js"></script>
 </body>
 </html>
