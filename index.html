@@ -4,14 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vab Chess</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.css">
 </head>
 <body>
-  <h1>Vab Chess</h1>
-  <div id="board"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard.min.css" />
-  <script src="script.js"></script>
+  <div class="container">
+    <h1>Vab Chess</h1>
+    <div id="board" class="board"></div>
+    <div class="controls">
+      <button onclick="resetGame()">Reset Game</button>
+      <div class="move-history">
+        <h3>Move History</h3>
+        <ol id="history"></ol>
+      </div>
+    </div>
+  </div>
+  <script src="script.js" defer></script>
 </body>
 </html>
