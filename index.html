@@ -7,18 +7,13 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Vab.Chess</h1>
-  
-  <div class="controls">
-    <button id="themeBtn">Board Theme</button>
-    <button id="resetBtn">Reset Game</button>
-  </div>
+  <h1>Vab Chess</h1>
+
+  <button id="themeBtn">Change Board Theme</button>
+  <button id="resetBtn">Reset Game</button>
 
   <div id="chessboard"></div>
-
-  <div id="history">
-    <h3>Move History</h3>
-  </div>
+  <div id="history"></div>
 
   <!-- Theme Modal -->
   <div id="themeModal" class="modal">
@@ -26,11 +21,10 @@
       <span class="close">&times;</span>
       <h3>Select Board Theme</h3>
       <div class="theme-options">
-        <button class="theme-option" data-white="#eee" data-black="#999">Default</button>
-        <button class="theme-option" data-white="#f0d9b5" data-black="#b58863">Classic</button>
-        <button class="theme-option" data-white="#e0e0e0" data-black="#707070">Gray</button>
-        <button class="theme-option" data-white="#ffffff" data-black="#4d4dff">Blue</button>
-        <button class="theme-option" data-white="#c0ffc0" data-black="#006400">Green</button>
+        <button class="theme-option" data-light="#f0d9b5" data-dark="#b58863">Classic</button>
+        <button class="theme-option" data-light="#e0e0e0" data-dark="#707070">Gray</button>
+        <button class="theme-option" data-light="#ffffff" data-dark="#4d4dff">Blue</button>
+        <button class="theme-option" data-light="#c0ffc0" data-dark="#006400">Green</button>
       </div>
     </div>
   </div>
