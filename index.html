@@ -1,26 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vab Chess</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/chessboard-1.0.0.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    h1 {
+      margin-top: 20px;
+      font-size: 2rem;
+    }
+    #board {
+      width: 90vw;
+      max-width: 480px;
+      margin: 20px 0;
+    }
+    #controls, #history {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      background-color: #333;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    #historyBox {
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Vab Chess</h1>
-    <div id="board" class="board"></div>
-    <div class="controls">
-      <button onclick="resetGame()">Reset Game</button>
-      <div class="move-history">
-        <h3>Move History</h3>
-        <ol id="history"></ol>
-      </div>
-    </div>
+  <h1>Vab Chess</h1>
+  <div id="controls">
+    <button id="resetBtn">Reset Game</button>
   </div>
-  <script src="script.js" defer></script>
-</body>
+  <div id="board"></div>
+  <div id="history">
+    <strong>Move History:</strong>
+  </div>
+  <div id="historyBox"></div>  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/chessboard-1.0.0.min.js"></script>  <script>
+    const game = new Chess();
+    const board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      onDrop: (source, target) => {
+        const move = game.move({ from: source, to: target, promotion: 'q' });
+        if (move === null) return 'snapback';
+        updateHistory();
+      }
+    });
+
+    function updateHistory() {
+      const historyBox = document.getElementById('historyBox');
+      const history = game.history();
+      historyBox.innerHTML = history.map((move, i) => `${i % 2 === 0 ? ((i / 2) + 1) + '.' : ''} ${move}`).join(' ');
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      game.reset();
+      board.start();
+      updateHistory();
+    });
+  </script></body>
 </html>
