@@ -1,121 +1,145 @@
-// Script for Vab.Chess
+let game, board, selectedSquare = null, playerColor = 'white', boardTheme = { light: '#f0d9b5', dark: '#b58863' }, timerWhite, timerBlack, interval;
 
-// Set up the chessboard
-const boardElement = document.getElementById("chessboard");
-const resetBtn = document.getElementById("resetBtn");
-const historyElement = document.getElementById("history");
-const themeModal = document.getElementById("themeModal");
-const themeBtn = document.getElementById("themeBtn");
-const closeModal = document.querySelector(".close");
+const squareNames = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
-let board = [];
-let selected = null;
-let moveHistory = [];
-let currentTheme = {
-  light: '#f0d9b5',
-  dark: '#b58863'
-};
+function createCoordinates() {
+  const top = document.getElementById("coordinates-top");
+  const left = document.getElementById("coordinates-left");
+  top.innerHTML = "";
+  left.innerHTML = "";
+  for (let i = 0; i < 8; i++) {
+    const col = document.createElement("div");
+    col.textContent = squareNames[i];
+    col.style.flex = "1";
+    top.appendChild(col);
 
-// Initial board setup
-const initialBoard = [
-  ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
-  ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["", "", "", "", "", "", "", ""],
-  ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-  ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]
-];
+    const row = document.createElement("div");
+    row.textContent = 8 - i;
+    row.style.flex = "1";
+    left.appendChild(row);
+  }
+}
 
-// Initialize board
-function initBoard() {
-  board = JSON.parse(JSON.stringify(initialBoard));
-  moveHistory = [];
-  renderBoard();
+function createBoard() {
+  board = document.getElementById("chessboard");
+  board.innerHTML = "";
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const square = document.createElement("div");
+      square.className = "square";
+      square.dataset.row = r;
+      square.dataset.col = c;
+      const isWhite = (r + c) % 2 === 0;
+      square.classList.add(isWhite ? "white-square" : "black-square");
+      square.style.backgroundColor = isWhite ? boardTheme.light : boardTheme.dark;
+      board.appendChild(square);
+    }
+  }
+}
+
+function resetGame() {
+  selectedSquare = null;
+  game = new Chess();
+  updateBoard();
+  document.getElementById("history").innerHTML = "";
+}
+
+function updateBoard() {
+  document.querySelectorAll(".square").forEach(sq => {
+    sq.textContent = "";
+  });
+
+  const pos = game.board();
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const square = document.querySelector(`.square[data-row='${r}'][data-col='${c}']`);
+      const piece = pos[r][c];
+      if (piece) {
+        const symbol = piece.type;
+        const color = piece.color === 'w' ? '♙♖♘♗♕♔' : '♟♜♞♝♛♚';
+        const symbols = ['p','r','n','b','q','k'];
+        square.textContent = color[symbols.indexOf(symbol)] || "";
+      }
+    }
+  }
+
   updateHistory();
 }
 
-// Render chessboard and pieces
-function renderBoard() {
-  boardElement.innerHTML = "";
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const square = document.createElement("div");
-      square.classList.add("square");
-      square.classList.add((row + col) % 2 === 0 ? "light" : "dark");
-      square.textContent = board[row][col];
-      square.dataset.row = row;
-      square.dataset.col = col;
-      square.style.backgroundColor = (row + col) % 2 === 0 ? currentTheme.light : currentTheme.dark;
-
-      if (selected && selected.row === row && selected.col === col) {
-        square.classList.add("selected");
-      }
-
-      square.onclick = () => handleSquareClick(row, col);
-      boardElement.appendChild(square);
-    }
-  }
-}
-
-// Handle square click for piece movement
-function handleSquareClick(row, col) {
-  if (!selected && board[row][col]) {
-    selected = { row, col };
-  } else if (selected) {
-    const from = board[selected.row][selected.col];
-    const to = board[row][col];
-    
-    if (from !== to || row !== selected.row || col !== selected.col) {
-      board[row][col] = from;
-      board[selected.row][selected.col] = "";
-      
-      const move = `${from} ${String.fromCharCode(97 + selected.col)}${8 - selected.row} → ${String.fromCharCode(97 + col)}${8 - row}`;
-      moveHistory.push(move);
-      updateHistory();
-    }
-    selected = null;
-  }
-  
-  renderBoard();
-}
-
-// Update move history display
 function updateHistory() {
-  historyElement.innerHTML = "<h3>Move History</h3>";
-  moveHistory.forEach((move, index) => {
+  const history = game.history({ verbose: true });
+  const historyDiv = document.getElementById("history");
+  historyDiv.innerHTML = "<h3>Move History</h3>";
+  for (let i = 0; i < history.length; i += 2) {
+    const white = history[i];
+    const black = history[i + 1];
+    const text = `${Math.floor(i / 2) + 1}. ${white.san}` + (black ? ` ${black.san}` : "");
     const div = document.createElement("div");
-    div.textContent = `${index + 1}. ${move}`;
-    historyElement.appendChild(div);
-  });
+    div.textContent = text;
+    historyDiv.appendChild(div);
+  }
 }
 
-// Reset the game
-resetBtn.onclick = () => {
-  initBoard();
-};
+function handleMove(row, col) {
+  const file = squareNames[col];
+  const rank = 8 - row;
+  const square = file + rank;
 
-// Modal functionality for theme change
-themeBtn.onclick = () => { themeModal.style.display = "block"; };
-closeModal.onclick = () => { themeModal.style.display = "none"; };
-window.onclick = (event) => {
-  if (event.target === themeModal) {
-    themeModal.style.display = "none";
+  if (!selectedSquare) {
+    const piece = game.get(square);
+    if (piece && piece.color === game.turn()) {
+      selectedSquare = square;
+      highlightSquare(row, col);
+    }
+  } else {
+    const move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+    if (move) {
+      updateBoard();
+    }
+    clearHighlights();
+    selectedSquare = null;
   }
-};
+}
 
-// Apply selected theme to the board
-document.querySelectorAll('.theme-option').forEach(button => {
-  button.onclick = () => {
-    const light = button.dataset.light;
-    const dark = button.dataset.dark;
-    currentTheme.light = light;
-    currentTheme.dark = dark;
-    renderBoard();
-    themeModal.style.display = 'none';
-  };
+function highlightSquare(row, col) {
+  clearHighlights();
+  const square = document.querySelector(`.square[data-row='${row}'][data-col='${col}']`);
+  square.classList.add("selected");
+}
+
+function clearHighlights() {
+  document.querySelectorAll(".square").forEach(s => s.classList.remove("selected"));
+}
+
+function changeTheme(light, dark) {
+  boardTheme.light = light;
+  boardTheme.dark = dark;
+  createBoard();
+  updateBoard();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  createCoordinates();
+  createBoard();
+  game = new Chess();
+  updateBoard();
+
+  document.getElementById("resetBtn").onclick = resetGame;
+  document.getElementById("themeBtn").onclick = () => document.getElementById("themeModal").style.display = "flex";
+  document.querySelector(".close").onclick = () => document.getElementById("themeModal").style.display = "none";
+
+  document.querySelectorAll(".theme-option").forEach(btn => {
+    btn.onclick = () => {
+      const light = btn.dataset.light;
+      const dark = btn.dataset.dark;
+      changeTheme(light, dark);
+      document.getElementById("themeModal").style.display = "none";
+    };
+  });
+
+  document.querySelectorAll(".square").forEach(sq => {
+    sq.onclick = () => {
+      handleMove(parseInt(sq.dataset.row), parseInt(sq.dataset.col));
+    };
+  });
 });
-
-// Initialize board on load
-initBoard();
