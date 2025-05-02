@@ -1,0 +1,17 @@
+body {
+  background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+#board {
+  width: 90vw;
+  max-width: 480px;
+  margin: auto;
+}
