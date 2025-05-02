@@ -72,3 +72,24 @@ function resetGame() {
 
 resetBtn.onclick = resetGame;
 resetGame();
+
+// Theme Modal
+const modal = document.getElementById("themeModal");
+const themeBtn = document.getElementById("themeBtn");
+const closeBtn = document.querySelector(".close");
+
+themeBtn.onclick = () => { modal.style.display = "block"; };
+closeBtn.onclick = () => { modal.style.display = "none"; };
+window.onclick = (e) => {
+  if (e.target === modal) modal.style.display = "none";
+};
+
+document.querySelectorAll('.theme-option').forEach(button => {
+  button.onclick = () => {
+    const white = button.dataset.white;
+    const black = button.dataset.black;
+    document.querySelectorAll('.white').forEach(el => el.style.backgroundColor = white);
+    document.querySelectorAll('.black').forEach(el => el.style.backgroundColor = black);
+    modal.style.display = 'none';
+  };
+});
