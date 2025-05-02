@@ -1,87 +1,80 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chess Platform</title>
-  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <title>Vab.Chess</title>
   <style>
-    .chess-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 400px; aspect-ratio: 1 / 1; }
-    .square { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-    .white { background-color: #f0d9b5; }
-    .black { background-color: #b58863; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #dce3e7, #f0f3f8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #333;
+    }
+
+    .board-container {
+      width: 90vmin;
+      height: 90vmin;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      border: 4px solid #333;
+    }
+
+    .cell {
+      width: 100%;
+      height: 100%;
+    }
+
+    .dark {
+      background-color: #769656;
+    }
+
+    .light {
+      background-color: #eeeed2;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
   </style>
 </head>
-<body class="bg-gray-100 p-4">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold text-center mb-4">Vab-Gamer Chess</h1><div class="mb-4">
-  <label for="timer" class="block text-sm font-medium text-gray-700">Select Timer:</label>
-  <select id="timer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-    <option value="0">No Timer</option>
-    <option value="60">1 Minute</option>
-    <option value="180">3 Minutes</option>
-    <option value="300">5 Minutes</option>
-    <option value="600">10 Minutes</option>
-    <option value="900">15 Minutes</option>
-    <option value="1800">30 Minutes</option>
-  </select>
-</div>
+<body>
+  <header>
+    <h1>Welcome to Vab.Chess</h1>
+    <p>2D Web Chess Platform</p>
+  </header>
 
-<div id="timerDisplay" class="text-center text-lg font-semibold mb-4"></div>
+  <div class="board-container" id="chessBoard"></div>
 
-<div class="chess-board mx-auto" id="board"></div>
+  <footer>
+    Made by Vab-Gamer | Online Chess Coming Soon
+  </footer>
 
-<div class="mt-6">
-  <h2 class="text-lg font-semibold mb-2">Move History</h2>
-  <ul id="moveHistory" class="list-disc pl-5 bg-white p-2 rounded shadow"></ul>
-</div>
-
-  </div>  <script>
-    const board = document.getElementById("board");
-    const moveHistory = document.getElementById("moveHistory");
-    const timerSelect = document.getElementById("timer");
-    const timerDisplay = document.getElementById("timerDisplay");
-
-    // Draw board
-    function drawBoard() {
-      board.innerHTML = "";
-      let isWhite = true;
-      for (let i = 0; i < 64; i++) {
-        const square = document.createElement("div");
-        square.className = `square ${isWhite ? "white" : "black"}`;
-        board.appendChild(square);
-        if ((i + 1) % 8 === 0) isWhite = !isWhite;
-        else isWhite = !isWhite;
+  <script>
+    const board = document.getElementById('chessBoard');
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.classList.add((row + col) % 2 === 0 ? 'light' : 'dark');
+        board.appendChild(cell);
       }
     }
-
-    drawBoard();
-
-    // Timer
-    let timerInterval;
-    function startTimer(seconds) {
-      clearInterval(timerInterval);
-      if (seconds === 0) {
-        timerDisplay.textContent = "No timer";
-        return;
-      }
-      function updateTimer() {
-        const min = Math.floor(seconds / 60);
-        const sec = seconds % 60;
-        timerDisplay.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
-        if (seconds > 0) {
-          seconds--;
-        } else {
-          clearInterval(timerInterval);
-          alert("Time's up!");
-        }
-      }
-      updateTimer();
-      timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    timerSelect.addEventListener("change", () => {
-      const seconds = parseInt(timerSelect.value);
-      startTimer(seconds);
-    });
-  </script></body>
-  </html>
+  </script>
+</body>
+</html>
