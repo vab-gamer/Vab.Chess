@@ -2,20 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vab Chess</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/chessboardjs/dist/chessboard-1.0.0.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+
+    #board {
+      width: 400px;
+      height: 400px;
+      margin-right: 20px;
+    }
+
+    #history {
+      max-width: 400px;
+      margin-top: 20px;
+      font-family: sans-serif;
+    }
+
+    #themeBtn {
+      margin: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background: white;
+      margin: 15% auto;
+      padding: 20px;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .theme-options button {
+      margin: 8px 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Vab Chess</h1>
-
-  <button id="themeBtn">Change Board Theme</button>
-  <button id="resetBtn">Reset Game</button>
-
-  <div id="chessboard"></div>
+  <div id="board"></div>
   <div id="history"></div>
 
-  <!-- Theme Modal -->
+  <button id="themeBtn">Board Theme</button>
+
+  <!-- Modal -->
   <div id="themeModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -29,6 +90,60 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboardjs/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script>
+    const boardElement = document.getElementById("board");
+    const historyElement = document.getElementById("history");
+    const btn = document.getElementById("themeBtn");
+    const modal = document.getElementById("themeModal");
+    const span = document.querySelector(".close");
+    let currentLightColor = "#f0d9b5"; // default light
+    let currentDarkColor = "#b58863";  // default dark
+
+    // Initialize chess.js and chessboard.js
+    const board = Chessboard(boardElement, {
+      draggable: true,
+      dropOffBoard: 'trash',
+      sparePieces: true,
+      onMoveEnd: (oldPos, newPos) => updateMoveHistory(),
+    });
+
+    // Start the board with standard chess setup
+    board.position('start');
+
+    // History updates
+    function updateMoveHistory() {
+      const history = board.history();
+      historyElement.innerHTML = "<h3>Move History</h3>";
+      history.forEach((move, i) => {
+        const div = document.createElement("div");
+        div.textContent = `${i + 1}. ${move}`;
+        historyElement.appendChild(div);
+      });
+    }
+
+    // Theme Modal Logic
+    btn.onclick = () => { modal.style.display = "block"; };
+    span.onclick = () => { modal.style.display = "none"; };
+    window.onclick = (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    };
+
+    document.querySelectorAll('.theme-option').forEach(button => {
+      button.onclick = () => {
+        currentLightColor = button.dataset.light;
+        currentDarkColor = button.dataset.dark;
+        document.querySelectorAll('.square').forEach(square => {
+          if (square.classList.contains('white')) {
+            square.style.backgroundColor = currentLightColor;
+          } else {
+            square.style.backgroundColor = currentDarkColor;
+          }
+        });
+        modal.style.display = 'none';
+      };
+    });
+  </script>
 </body>
-</html>
+          </html>
