@@ -6,6 +6,9 @@ let board = [];
 let selected = null;
 let moveHistory = [];
 
+let currentLightColor = "#eee";  // default
+let currentDarkColor = "#999";   // default
+
 const initialBoard = [
   ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
   ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
@@ -23,7 +26,9 @@ function renderBoard() {
     for (let col = 0; col < 8; col++) {
       const square = document.createElement("div");
       square.classList.add("square");
-      square.classList.add((row + col) % 2 === 0 ? "white" : "black");
+      const isWhite = (row + col) % 2 === 0;
+      square.classList.add(isWhite ? "white" : "black");
+      square.style.backgroundColor = isWhite ? currentLightColor : currentDarkColor;
       square.textContent = board[row][col];
       square.dataset.row = row;
       square.dataset.col = col;
@@ -73,23 +78,22 @@ function resetGame() {
 resetBtn.onclick = resetGame;
 resetGame();
 
-// Theme Modal
+// Theme Modal Logic
 const modal = document.getElementById("themeModal");
-const themeBtn = document.getElementById("themeBtn");
-const closeBtn = document.querySelector(".close");
+const btn = document.getElementById("themeBtn");
+const span = document.querySelector(".close");
 
-themeBtn.onclick = () => { modal.style.display = "block"; };
-closeBtn.onclick = () => { modal.style.display = "none"; };
+btn.onclick = () => { modal.style.display = "block"; };
+span.onclick = () => { modal.style.display = "none"; };
 window.onclick = (e) => {
   if (e.target === modal) modal.style.display = "none";
 };
 
 document.querySelectorAll('.theme-option').forEach(button => {
   button.onclick = () => {
-    const white = button.dataset.white;
-    const black = button.dataset.black;
-    document.querySelectorAll('.white').forEach(el => el.style.backgroundColor = white);
-    document.querySelectorAll('.black').forEach(el => el.style.backgroundColor = black);
+    currentLightColor = button.dataset.light;
+    currentDarkColor = button.dataset.dark;
+    renderBoard();  // re-render to apply new theme colors
     modal.style.display = 'none';
   };
 });
