@@ -4,135 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Vab Chess</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #f4f4f4;
-    }
-
-    #themeBtn {
-      margin: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #board {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      width: 90vmin;
-      height: 90vmin;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-
-    .square {
-      width: 100%;
-      height: 100%;
-    }
-
-    .light {
-      background-color: #f0d9b5;
-    }
-
-    .dark {
-      background-color: #b58863;
-    }
-
-    /* Modal Styling */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.5);
-    }
-
-    .modal-content {
-      background: white;
-      margin: 15% auto;
-      padding: 20px;
-      width: 90%;
-      max-width: 300px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .theme-options button {
-      margin: 8px 4px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h1>Vab.Chess</h1>
+  
+  <div class="controls">
+    <button id="themeBtn">Board Theme</button>
+    <button id="resetBtn">Reset Game</button>
+  </div>
 
-  <button id="themeBtn">Board Theme</button>
+  <div id="chessboard"></div>
 
-  <div id="board"></div>
+  <div id="history">
+    <h3>Move History</h3>
+  </div>
 
-  <!-- Modal -->
+  <!-- Theme Modal -->
   <div id="themeModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <h3>Select Board Theme</h3>
       <div class="theme-options">
-        <button class="theme-option" data-light="#f0d9b5" data-dark="#b58863">Classic</button>
-        <button class="theme-option" data-light="#e0e0e0" data-dark="#707070">Gray</button>
-        <button class="theme-option" data-light="#ffffff" data-dark="#4d4dff">Blue</button>
-        <button class="theme-option" data-light="#c0ffc0" data-dark="#006400">Green</button>
+        <button class="theme-option" data-white="#eee" data-black="#999">Default</button>
+        <button class="theme-option" data-white="#f0d9b5" data-black="#b58863">Classic</button>
+        <button class="theme-option" data-white="#e0e0e0" data-black="#707070">Gray</button>
+        <button class="theme-option" data-white="#ffffff" data-black="#4d4dff">Blue</button>
+        <button class="theme-option" data-white="#c0ffc0" data-black="#006400">Green</button>
       </div>
     </div>
   </div>
 
-  <script>
-    // Generate board
-    const board = document.getElementById("board");
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const square = document.createElement("div");
-        square.classList.add("square");
-        if ((row + col) % 2 === 0) {
-          square.classList.add("light");
-        } else {
-          square.classList.add("dark");
-        }
-        board.appendChild(square);
-      }
-    }
-
-    // Modal logic
-    const modal = document.getElementById("themeModal");
-    const btn = document.getElementById("themeBtn");
-    const span = document.querySelector(".close");
-
-    btn.onclick = () => { modal.style.display = "block"; };
-    span.onclick = () => { modal.style.display = "none"; };
-    window.onclick = (e) => {
-      if (e.target === modal) modal.style.display = "none";
-    };
-
-    document.querySelectorAll('.theme-option').forEach(button => {
-      button.onclick = () => {
-        const light = button.dataset.light;
-        const dark = button.dataset.dark;
-        document.querySelectorAll('.light').forEach(el => el.style.backgroundColor = light);
-        document.querySelectorAll('.dark').forEach(el => el.style.backgroundColor = dark);
-        modal.style.display = 'none';
-      };
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
