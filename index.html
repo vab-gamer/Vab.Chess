@@ -1,30 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vab Chess</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <h1>Vab.Chess</h1>
 
   <button id="themeBtn">Board Theme</button>
+  <button id="resetBtn">Reset</button>
 
-  <div class="board-wrapper">
-    <div class="ranks">
-      <div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div>
-    </div>
-    <div id="board"></div>
-    <div class="files">
-      <div>a</div><div>b</div><div>c</div><div>d</div><div>e</div><div>f</div><div>g</div><div>h</div>
-    </div>
+  <div id="board-container">
+    <div id="row-labels"></div>
+    <div id="col-labels"></div>
+    <div id="chessboard"></div>
   </div>
 
   <div id="history"></div>
 
-  <button id="resetBtn">Reset Game</button>
-
-  <!-- Theme Modal -->
+  <!-- Modal -->
   <div id="themeModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -38,7 +34,6 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/1.0.0/chess.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
