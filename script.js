@@ -1,100 +1,121 @@
-const boardElement = document.getElementById("board");
-const historyElement = document.getElementById("history");
+// Script for Vab.Chess
+
+// Set up the chessboard
+const boardElement = document.getElementById("chessboard");
 const resetBtn = document.getElementById("resetBtn");
+const historyElement = document.getElementById("history");
+const themeModal = document.getElementById("themeModal");
+const themeBtn = document.getElementById("themeBtn");
+const closeModal = document.querySelector(".close");
 
-const game = new Chess();
+let board = [];
 let selected = null;
-let lightColor = "#f0d9b5";
-let darkColor = "#b58863";
+let moveHistory = [];
+let currentTheme = {
+  light: '#f0d9b5',
+  dark: '#b58863'
+};
 
+// Initial board setup
+const initialBoard = [
+  ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
+  ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["", "", "", "", "", "", "", ""],
+  ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+  ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]
+];
+
+// Initialize board
+function initBoard() {
+  board = JSON.parse(JSON.stringify(initialBoard));
+  moveHistory = [];
+  renderBoard();
+  updateHistory();
+}
+
+// Render chessboard and pieces
 function renderBoard() {
   boardElement.innerHTML = "";
-  const board = game.board();
-
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       const square = document.createElement("div");
       square.classList.add("square");
       square.classList.add((row + col) % 2 === 0 ? "light" : "dark");
-      square.style.backgroundColor = (row + col) % 2 === 0 ? lightColor : darkColor;
-
-      const piece = board[row][col];
+      square.textContent = board[row][col];
       square.dataset.row = row;
       square.dataset.col = col;
-
-      if (piece) {
-        square.textContent = piece.unicode;
-      }
+      square.style.backgroundColor = (row + col) % 2 === 0 ? currentTheme.light : currentTheme.dark;
 
       if (selected && selected.row === row && selected.col === col) {
         square.classList.add("selected");
       }
 
-      square.onclick = () => handleClick(row, col);
+      square.onclick = () => handleSquareClick(row, col);
       boardElement.appendChild(square);
     }
   }
 }
 
-function handleClick(row, col) {
-  const board = game.board();
-  const clicked = board[row][col];
-
-  if (selected) {
-    const from = `${"abcdefgh"[selected.col]}${8 - selected.row}`;
-    const to = `${"abcdefgh"[col]}${8 - row}`;
-    const move = game.move({ from, to, promotion: "q" });
-
-    if (move) selected = null;
-    else if (clicked) selected = { row, col };
-    else selected = null;
-  } else if (clicked) {
+// Handle square click for piece movement
+function handleSquareClick(row, col) {
+  if (!selected && board[row][col]) {
     selected = { row, col };
+  } else if (selected) {
+    const from = board[selected.row][selected.col];
+    const to = board[row][col];
+    
+    if (from !== to || row !== selected.row || col !== selected.col) {
+      board[row][col] = from;
+      board[selected.row][selected.col] = "";
+      
+      const move = `${from} ${String.fromCharCode(97 + selected.col)}${8 - selected.row} → ${String.fromCharCode(97 + col)}${8 - row}`;
+      moveHistory.push(move);
+      updateHistory();
+    }
+    selected = null;
   }
-
+  
   renderBoard();
-  updateHistory();
 }
 
+// Update move history display
 function updateHistory() {
   historyElement.innerHTML = "<h3>Move History</h3>";
-  const history = game.history();
-  for (let i = 0; i < history.length; i += 2) {
-    const white = history[i];
-    const black = history[i + 1] || "";
+  moveHistory.forEach((move, index) => {
     const div = document.createElement("div");
-    div.textContent = `${i / 2 + 1}. ${white} ${black}`;
+    div.textContent = `${index + 1}. ${move}`;
     historyElement.appendChild(div);
-  }
+  });
 }
 
-function resetGame() {
-  game.reset();
-  selected = null;
-  updateHistory();
-  renderBoard();
-}
-
-resetBtn.onclick = resetGame;
-
-// Theme modal
-const modal = document.getElementById("themeModal");
-const btn = document.getElementById("themeBtn");
-const span = document.querySelector(".close");
-
-btn.onclick = () => { modal.style.display = "block"; };
-span.onclick = () => { modal.style.display = "none"; };
-window.onclick = (e) => {
-  if (e.target === modal) modal.style.display = "none";
+// Reset the game
+resetBtn.onclick = () => {
+  initBoard();
 };
 
+// Modal functionality for theme change
+themeBtn.onclick = () => { themeModal.style.display = "block"; };
+closeModal.onclick = () => { themeModal.style.display = "none"; };
+window.onclick = (event) => {
+  if (event.target === themeModal) {
+    themeModal.style.display = "none";
+  }
+};
+
+// Apply selected theme to the board
 document.querySelectorAll('.theme-option').forEach(button => {
   button.onclick = () => {
-    lightColor = button.dataset.light;
-    darkColor = button.dataset.dark;
+    const light = button.dataset.light;
+    const dark = button.dataset.dark;
+    currentTheme.light = light;
+    currentTheme.dark = dark;
     renderBoard();
-    modal.style.display = 'none';
+    themeModal.style.display = 'none';
   };
 });
 
-resetGame();
+// Initialize board on load
+initBoard();
