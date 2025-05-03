@@ -1,17 +1,5 @@
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin-top: 50px;
-  background: #f0f0f0;
-}
-.brand {
-  color: #2c3e50;
-  font-weight: bold;
-}
-#board {
-  margin: 20px auto;
-}
-#status {
-  font-weight: bold;
-  margin-top: 10px;
+body { 
+  font-family: Arial, sans-serif; 
+  text-align: center; 
+  padding-top: 20px;
 }
