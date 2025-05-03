@@ -1,41 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Vab Chess</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chess Platform</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
 </head>
 <body>
-
-  <h1>Vab Chess</h1>
-
-  <div id="coordinates">
-    <div id="coordinates-top"></div>
-    <div id="coordinates-left"></div>
+  <div class="container">
+    <h1>Chess</h1>
+    <div id="board"></div>
+    <div id="status"></div>
+    <button id="resetBtn">Reset Game</button>
   </div>
-
-  <div id="chessboard"></div>
-
-  <div id="history"></div>
-
-  <button id="resetBtn">Reset Game</button>
-
-  <!-- Theme Modal -->
-  <button id="themeBtn">Board Theme</button>
-  <div id="themeModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h3>Select Board Theme</h3>
-      <div class="theme-options">
-        <button class="theme-option" data-light="#f0d9b5" data-dark="#b58863">Classic</button>
-        <button class="theme-option" data-light="#e0e0e0" data-dark="#707070">Gray</button>
-        <button class="theme-option" data-light="#ffffff" data-dark="#4d4dff">Blue</button>
-        <button class="theme-option" data-light="#c0ffc0" data-dark="#006400">Green</button>
-      </div>
-    </div>
-  </div>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
