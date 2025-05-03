@@ -3,36 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vab.Chess - Free Online Chess</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Vab.Chess</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1><span class="brand">Vab</span>.Chess</h1>
-      <div class="game-controls">
-        <button id="newGameBtn">New Game</button>
-        <button id="flipBoardBtn">Flip Board</button>
-      </div>
-    </header>
-
-    <div class="game-container">
-      <div id="board"></div>
-      
-      <div class="panel">
-        <div id="moveHistory" class="move-history"></div>
-        <div id="gameStatus" class="game-status">White's turn</div>
-        <div class="timer-container">
-          <div id="whiteTimer" class="timer">10:00</div>
-          <div id="blackTimer" class="timer">10:00</div>
-        </div>
-      </div>
-    </div>
+    <h1><span class="brand">Vab</span>.Chess</h1>
+    <div id="board" style="width: 400px"></div>
+    <div id="status">White's turn</div>
   </div>
 
+  <!-- Load libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
   <script src="script.js"></script>
 </body>
-    </html>
+</html>
