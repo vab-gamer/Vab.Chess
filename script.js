@@ -1,206 +1,175 @@
-const boardElement = document.getElementById("chessBoard");
-const moveHistoryElement = document.getElementById("moveHistory");
-const themeSelector = document.getElementById("themeSelector");
-const modeSelector = document.getElementById("modeSelector");
-const colorToggle = document.getElementById("colorToggle");
-const timerSelector = document.getElementById("timerSelector");
-const newGameBtn = document.getElementById("newGameBtn");
+const boardElement = document.getElementById("chessboard");
+const resetButton = document.getElementById("resetBtn");
+const historyElement = document.getElementById("history");
+const themeButton = document.getElementById("themeBtn");
+const themeModal = document.getElementById("themeModal");
+const closeModalButton = document.getElementById("closeModal");
 
-let game = null;
-let selected = null;
+const boardState = Array(8).fill().map(() => Array(8).fill(null));
+let selectedPiece = null;
+let currentPlayer = "white";
 let moveHistory = [];
-let isWhiteTurn = true;
-let timerWhite = 0;
-let timerBlack = 0;
-let timerInterval = null;
-let aiEnabled = false;
-let aiColor = "black";
-let userColor = "white";
+let gameOver = false;
 
-function createBoard() {
-  boardElement.innerHTML = "";
-  const orientation = userColor === "white" ? 1 : -1;
-  const offset = userColor === "white" ? 0 : 7;
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const tile = document.createElement("div");
-      tile.classList.add("tile");
-      tile.dataset.row = r;
-      tile.dataset.col = c;
-      const color = (r + c) % 2 === 0 ? "light" : "dark";
-      tile.classList.add(color);
-      tile.addEventListener("click", () => handleClick(r, c));
-      boardElement.appendChild(tile);
-    }
-  }
-}
+const pieceImages = {
+  whitePawn: "images/wp.png",
+  blackPawn: "images/bp.png",
+  whiteRook: "images/wr.png",
+  blackRook: "images/br.png",
+  whiteKnight: "images/wn.png",
+  blackKnight: "images/bn.png",
+  whiteBishop: "images/wb.png",
+  blackBishop: "images/bb.png",
+  whiteQueen: "images/wq.png",
+  blackQueen: "images/bq.png",
+  whiteKing: "images/wk.png",
+  blackKing: "images/bk.png"
+};
 
-function initializeGame() {
-  game = new Chess();
-  selected = null;
-  moveHistory = [];
-  isWhiteTurn = true;
-  updateBoard();
-  updateHistory();
-  resetTimers();
-  updateTheme();
-  aiEnabled = modeSelector.value === "ai";
-  userColor = colorToggle.value;
-  aiColor = userColor === "white" ? "black" : "white";
-  createBoard();
-  if (aiEnabled && game.turn() !== userColor[0]) {
-    setTimeout(aiMove, 300);
-  }
-}
+// Initialize the board
+function initBoard() {
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const square = document.createElement("div");
+      square.classList.add("square");
+      square.dataset.row = row;
+      square.dataset.col = col;
 
-function updateBoard() {
-  const squares = boardElement.querySelectorAll(".tile");
-  squares.forEach((tile) => tile.innerHTML = "");
-
-  const position = game.board();
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = position[r][c];
-      if (piece) {
-        const tile = getTile(r, c);
-        const img = document.createElement("img");
-        img.src = `assets/${piece.color}${piece.type.toUpperCase()}.png`;
-        img.classList.add("piece");
-        tile.appendChild(img);
+      // Alternate colors for the squares
+      if ((row + col) % 2 === 0) {
+        square.classList.add("white");
+      } else {
+        square.classList.add("black");
       }
+
+      // Add click event to each square
+      square.addEventListener("click", handleSquareClick);
+
+      boardElement.appendChild(square);
     }
   }
+  resetBoard();
 }
 
-function getTile(r, c) {
-  const idx = userColor === "white" ? r * 8 + c : (7 - r) * 8 + (7 - c);
-  return boardElement.children[idx];
-}
+// Reset the board to the initial configuration
+function resetBoard() {
+  const pieces = [
+    { type: "Rook", color: "white", row: 0, col: 0 },
+    { type: "Knight", color: "white", row: 0, col: 1 },
+    { type: "Bishop", color: "white", row: 0, col: 2 },
+    { type: "Queen", color: "white", row: 0, col: 3 },
+    { type: "King", color: "white", row: 0, col: 4 },
+    { type: "Bishop", color: "white", row: 0, col: 5 },
+    { type: "Knight", color: "white", row: 0, col: 6 },
+    { type: "Rook", color: "white", row: 0, col: 7 },
+    { type: "Pawn", color: "white", row: 1, col: 0 },
+    { type: "Pawn", color: "white", row: 1, col: 1 },
+    { type: "Pawn", color: "white", row: 1, col: 2 },
+    { type: "Pawn", color: "white", row: 1, col: 3 },
+    { type: "Pawn", color: "white", row: 1, col: 4 },
+    { type: "Pawn", color: "white", row: 1, col: 5 },
+    { type: "Pawn", color: "white", row: 1, col: 6 },
+    { type: "Pawn", color: "white", row: 1, col: 7 },
 
-function handleClick(row, col) {
-  if (game.game_over()) return;
-  const square = rowcolToSquare(row, col);
-  const piece = game.get(square);
+    { type: "Rook", color: "black", row: 7, col: 0 },
+    { type: "Knight", color: "black", row: 7, col: 1 },
+    { type: "Bishop", color: "black", row: 7, col: 2 },
+    { type: "Queen", color: "black", row: 7, col: 3 },
+    { type: "King", color: "black", row: 7, col: 4 },
+    { type: "Bishop", color: "black", row: 7, col: 5 },
+    { type: "Knight", color: "black", row: 7, col: 6 },
+    { type: "Rook", color: "black", row: 7, col: 7 },
+    { type: "Pawn", color: "black", row: 6, col: 0 },
+    { type: "Pawn", color: "black", row: 6, col: 1 },
+    { type: "Pawn", color: "black", row: 6, col: 2 },
+    { type: "Pawn", color: "black", row: 6, col: 3 },
+    { type: "Pawn", color: "black", row: 6, col: 4 },
+    { type: "Pawn", color: "black", row: 6, col: 5 },
+    { type: "Pawn", color: "black", row: 6, col: 6 },
+    { type: "Pawn", color: "black", row: 6, col: 7 }
+  ];
 
-  if (selected) {
-    if (selected === square) {
-      selected = null;
-      highlightMoves([]);
-      return;
-    }
-    const moves = game.moves({ square: selected, verbose: true });
-    const move = moves.find((m) => m.to === square);
-    if (move) {
-      game.move(move);
-      moveHistory.push(move.san);
-      updateBoard();
-      updateHistory();
-      selected = null;
-      highlightMoves([]);
-      if (timerInterval === null) startTimers();
-      if (game.in_checkmate()) alert("Checkmate!");
-      else if (game.in_draw()) alert("Draw!");
-      if (aiEnabled && game.turn() === aiColor[0]) setTimeout(aiMove, 300);
-    } else {
-      selected = null;
-      highlightMoves([]);
-    }
-  } else {
-    if (!piece || piece.color !== game.turn()) return;
-    selected = square;
-    const moves = game.moves({ square, verbose: true });
-    highlightMoves(moves.map((m) => m.to));
-  }
-}
-
-function rowcolToSquare(r, c) {
-  const files = "abcdefgh";
-  const ranks = "87654321";
-  const file = userColor === "white" ? files[c] : files[7 - c];
-  const rank = userColor === "white" ? ranks[r] : ranks[7 - r];
-  return file + rank;
-}
-
-function highlightMoves(moves) {
-  const tiles = document.querySelectorAll(".tile");
-  tiles.forEach(tile => tile.classList.remove("highlight"));
-  moves.forEach(move => {
-    const r = 8 - parseInt(move[1]);
-    const c = "abcdefgh".indexOf(move[0]);
-    getTile(r, c).classList.add("highlight");
+  pieces.forEach(piece => {
+    const { type, color, row, col } = piece;
+    boardState[row][col] = { type, color };
+    const square = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    const pieceElement = document.createElement("img");
+    pieceElement.classList.add("piece");
+    pieceElement.src = pieceImages[`${color}${type}`];
+    square.appendChild(pieceElement);
   });
 }
 
-function updateHistory() {
-  moveHistoryElement.innerHTML = "";
-  for (let i = 0; i < moveHistory.length; i += 2) {
-    const row = document.createElement("div");
-    row.classList.add("history-row");
-    const moveNum = document.createElement("span");
-    moveNum.textContent = `${(i / 2) + 1}.`;
-    const whiteMove = document.createElement("span");
-    whiteMove.textContent = moveHistory[i];
-    const blackMove = document.createElement("span");
-    blackMove.textContent = moveHistory[i + 1] || "";
-    row.append(moveNum, whiteMove, blackMove);
-    moveHistoryElement.appendChild(row);
+// Handle square click
+function handleSquareClick(event) {
+  if (gameOver) return;
+
+  const square = event.target;
+  const row = parseInt(square.dataset.row);
+  const col = parseInt(square.dataset.col);
+  const piece = boardState[row][col];
+
+  if (selectedPiece) {
+    // Try to move the selected piece
+    const validMove = isValidMove(selectedPiece, row, col);
+    if (validMove) {
+      makeMove(selectedPiece, row, col);
+      selectedPiece = null;
+      updateHistory();
+    } else {
+      // Invalid move, deselect piece
+      selectedPiece = null;
+      removeSelectedClass();
+    }
+  } else if (piece && piece.color === currentPlayer) {
+    // Select the piece
+    selectedPiece = { piece, row, col };
+    square.classList.add("selected");
   }
 }
 
-function aiMove() {
-  const moves = game.moves();
-  if (moves.length === 0) return;
-  const move = moves[Math.floor(Math.random() * moves.length)];
-  game.move(move);
-  moveHistory.push(move);
-  updateBoard();
-  updateHistory();
-  if (game.in_checkmate()) alert("Checkmate!");
-  else if (game.in_draw()) alert("Draw!");
+// Check if move is valid
+function isValidMove(piece, row, col) {
+  // Implement basic movement rules here (can be expanded)
+  return true;
 }
 
-function resetTimers() {
-  clearInterval(timerInterval);
-  timerWhite = 0;
-  timerBlack = 0;
-  updateTimerDisplay();
-  timerInterval = null;
+// Make the move on the board
+function makeMove(piece, row, col) {
+  const { type, color } = piece;
+  boardState[piece.row][piece.col] = null;
+  boardState[row][col] = { type, color };
+
+  const fromSquare = document.querySelector(`[data-row="${piece.row}"][data-col="${piece.col}"]`);
+  const toSquare = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+
+  // Remove piece from the board
+  fromSquare.innerHTML = "";
+  // Place the piece on the new square
+  const pieceElement = document.createElement("img");
+  pieceElement.classList.add("piece");
+  pieceElement.src = pieceImages[`${color}${type}`];
+  toSquare.appendChild(pieceElement);
 }
 
-function startTimers() {
-  const limit = parseInt(timerSelector.value);
-  if (!limit) return;
-  timerInterval = setInterval(() => {
-    if (game.turn() === "w") timerWhite++;
-    else timerBlack++;
-    updateTimerDisplay();
-    if (limit && (timerWhite >= limit * 60 || timerBlack >= limit * 60)) {
-      clearInterval(timerInterval);
-      alert("Time's up!");
-    }
-  }, 1000);
+// Update the move history
+function updateHistory() {
+  moveHistory.push(`Move: ${currentPlayer}`);
+  const moveDiv = document.createElement("div");
+  moveDiv.textContent = moveHistory[moveHistory.length - 1];
+  historyElement.appendChild(moveDiv);
 }
 
-function updateTimerDisplay() {
-  const format = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ":" + String(t % 60).padStart(2, '0');
-  document.getElementById("whiteTimer").textContent = "White: " + format(timerWhite);
-  document.getElementById("blackTimer").textContent = "Black: " + format(timerBlack);
-}
-
-function updateTheme() {
-  document.body.className = themeSelector.value;
-}
-
-themeSelector.addEventListener("change", updateTheme);
-newGameBtn.addEventListener("click", initializeGame);
-modeSelector.addEventListener("change", () => {
-  document.getElementById("colorToggleWrapper").style.display = modeSelector.value === "ai" ? "inline-block" : "none";
-});
-colorToggle.addEventListener("change", () => {
-  userColor = colorToggle.value;
-  aiColor = userColor === "white" ? "black" : "white";
-  createBoard();
-  updateBoard();
+// Reset the game
+resetButton.addEventListener("click", () => {
+  selectedPiece = null;
+  currentPlayer = "white";
+  moveHistory = [];
+  gameOver = false;
+  boardState.forEach(row => row.fill(null));
+  boardElement.innerHTML = "";
+  historyElement.innerHTML = "";
+  initBoard();
 });
 
-initializeGame();
+initBoard();
