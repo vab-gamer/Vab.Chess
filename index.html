@@ -1,40 +1,73 @@
-<!DOCTYPE html><html lang="en"><head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vab.Chess</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap" rel="stylesheet" />
-</head><body>
-  <div id="app">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vab.Chess</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <header>
-      <h1>Vab.Chess</h1>
-      <div class="controls">
-        <button onclick="resetGame()">Reset</button>
-        <button onclick="toggleTheme()">Toggle Theme</button>
-        <select id="colorSelect" onchange="selectColor()">
-          <option value="white">Play as White</option>
-          <option value="black">Play as Black</option>
-        </select>
-        <div id="timer">00:00</div>
-      </div>
-    </header><main>
-  <div class="board-container">
-    <div id="board"></div>
-    <div class="coords ranks">
-      <div>8</div><div>7</div><div>6</div><div>5</div><div>4</div><div>3</div><div>2</div><div>1</div>
-    </div>
-    <div class="coords files">
-      <div>a</div><div>b</div><div>c</div><div>d</div><div>e</div><div>f</div><div>g</div><div>h</div>
-    </div>
-  </div>
-  <aside>
-    <h2>Move History</h2>
-    <ol id="moveHistory"></ol>
-  </aside>
-</main>
+        <h1>Vab.Chess</h1>
+    </header>
 
-<footer>
-  <p>Made by Vab-Gamer | Sponsored by ~Ritikesh Singh</p>
-</footer>
+    <main>
+        <section class="controls">
+            <div class="game-mode">
+                <label>Game Mode:</label>
+                <select id="gameMode">
+                    <option value="human-vs-bot">Human vs Bot</option>
+                    <option value="human-vs-human">Human vs Human (Pass & Play)</option>
+                </select>
+            </div>
+            <div class="bot-difficulty" id="botDifficultySection">
+                <label>Bot Difficulty:</label>
+                <select id="botDifficulty">
+                    <option value="easy">Easy</option>
+                    <option value="hard">Hard</option>
+                    <option value="very-hard">Very Hard</option>
+                </select>
+            </div>
+            <div class="timer-options">
+                <label>Timer:</label>
+                <select id="timerSelect">
+                    <option value="none">No Timer</option>
+                    <option value="ultra-bullet">Ultra-Bullet (15s)</option>
+                    <option value="bullet">Bullet (1m)</option>
+                    <option value="rapid">Rapid (10m)</option>
+                    <option value="classical">Classical (30m)</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="number" id="customMinutes" min="1" max="120" value="5" style="display:none;" /> min
+            </div>
+            <button id="startBtn">Start New Game</button>
+        </section>
 
-  </div>  <script src="script.js"></script></body></html>
+        <section class="chess-area">
+            <div class="timers">
+                <div id="white-timer" class="timer">--:--</div>
+                <div id="black-timer" class="timer">--:--</div>
+            </div>
+            <div id="board-container">
+                <svg id="chessboard" viewBox="0 0 400 400"></svg>
+            </div>
+            <div class="move-history">
+                <h3>Move History</h3>
+                <ol id="moveList"></ol>
+                <button id="copyHistoryBtn">Copy-Move History</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <span>~by Vab-Gamer</span>
+    </footer>
+
+    <!-- Sound Effects -->
+    <audio id="moveSound" src="https://cdn.jsdelivr.net/gh/lichess-org/lila@master/public/sound/standard/Move.mp3"></audio>
+    <audio id="captureSound" src="https://cdn.jsdelivr.net/gh/lichess-org/lila@master/public/sound/standard/Capture.mp3"></audio>
+    <audio id="checkSound" src="https://cdn.jsdelivr.net/gh/lichess-org/lila@master/public/sound/standard/Check.mp3"></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
