@@ -1,127 +1,206 @@
-// Initialize game
-const game = new Chess();
-const board = Chessboard('board', {
-  position: 'start',
-  draggable: true,
-  pieceTheme: 'https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/img/chesspieces/wikipedia/{piece}.png',
-  onDragStart: (src, piece) => {
-    // Only pick up pieces for the side to move
-    if (game.isGameOver() || 
-        (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-      return false;
-    }
-  },
-  onDrop: (src, dest) => {
-    // Try to make the move
-    const move = game.move({
-      from: src,
-      to: dest,
-      promotion: 'q' // NOTE: always promote to queen for simplicity
-    });
+const boardElement = document.getElementById("chessBoard");
+const moveHistoryElement = document.getElementById("moveHistory");
+const themeSelector = document.getElementById("themeSelector");
+const modeSelector = document.getElementById("modeSelector");
+const colorToggle = document.getElementById("colorToggle");
+const timerSelector = document.getElementById("timerSelector");
+const newGameBtn = document.getElementById("newGameBtn");
 
-    // Illegal move
-    if (move === null) return 'snapback';
-    
-    // Update UI
-    updateMoveHistory(move);
-    updateStatus();
-  },
-  onSnapEnd: () => {
-    // Sync board position with game state
-    board.position(game.fen());
-  }
-});
-
-// Game state
+let game = null;
+let selected = null;
 let moveHistory = [];
-let whiteTime = 600; // 10 minutes in seconds
-let blackTime = 600;
-let timerInterval;
+let isWhiteTurn = true;
+let timerWhite = 0;
+let timerBlack = 0;
+let timerInterval = null;
+let aiEnabled = false;
+let aiColor = "black";
+let userColor = "white";
 
-// Timer functions
-function startTimers() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(updateTimers, 1000);
-}
-
-function updateTimers() {
-  if (game.turn() === 'w') {
-    whiteTime--;
-  } else {
-    blackTime--;
-  }
-
-  document.getElementById('whiteTimer').textContent = formatTime(whiteTime);
-  document.getElementById('blackTimer').textContent = formatTime(blackTime);
-
-  // Check for timeout
-  if (whiteTime <= 0 || blackTime <= 0) {
-    clearInterval(timerInterval);
-    const winner = whiteTime <= 0 ? 'Black' : 'White';
-    document.getElementById('gameStatus').textContent = `Time's up! ${winner} wins by timeout`;
+function createBoard() {
+  boardElement.innerHTML = "";
+  const orientation = userColor === "white" ? 1 : -1;
+  const offset = userColor === "white" ? 0 : 7;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const tile = document.createElement("div");
+      tile.classList.add("tile");
+      tile.dataset.row = r;
+      tile.dataset.col = c;
+      const color = (r + c) % 2 === 0 ? "light" : "dark";
+      tile.classList.add(color);
+      tile.addEventListener("click", () => handleClick(r, c));
+      boardElement.appendChild(tile);
+    }
   }
 }
 
-function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-}
-
-// UI updates
-function updateMoveHistory(move) {
-  moveHistory.push(move);
-  const moveElement = document.createElement('div');
-  const moveNumber = Math.ceil(moveHistory.length / 2);
-  const isWhiteMove = moveHistory.length % 2 !== 0;
-  
-  if (isWhiteMove) {
-    moveElement.textContent = `${moveNumber}. ${move.piece.toUpperCase()} ${move.from}-${move.to}`;
-  } else {
-    const lastMove = document.querySelector('#moveHistory div:last-child');
-    lastMove.textContent += ` ${move.piece.toUpperCase()} ${move.from}-${move.to}`;
-  }
-  
-  document.getElementById('moveHistory').appendChild(moveElement);
-  // Auto-scroll to bottom
-  document.getElementById('moveHistory').scrollTop = document.getElementById('moveHistory').scrollHeight;
-}
-
-function updateStatus() {
-  let status = '';
-  
-  if (game.isCheckmate()) {
-    status = `Checkmate! ${game.turn() === 'w' ? 'Black' : 'White'} wins`;
-  } else if (game.isDraw()) {
-    status = 'Draw!';
-  } else if (game.isCheck()) {
-    status = `Check! ${game.turn() === 'w' ? 'White' : 'Black'}'s turn`;
-  } else {
-    status = `${game.turn() === 'w' ? 'White' : 'Black'}'s turn`;
-  }
-  
-  document.getElementById('gameStatus').textContent = status;
-}
-
-// Button handlers
-document.getElementById('newGameBtn').addEventListener('click', () => {
-  game.reset();
-  board.start();
+function initializeGame() {
+  game = new Chess();
+  selected = null;
   moveHistory = [];
-  document.getElementById('moveHistory').innerHTML = '';
-  whiteTime = 600;
-  blackTime = 600;
-  document.getElementById('whiteTimer').textContent = '10:00';
-  document.getElementById('blackTimer').textContent = '10:00';
-  updateStatus();
-  startTimers();
+  isWhiteTurn = true;
+  updateBoard();
+  updateHistory();
+  resetTimers();
+  updateTheme();
+  aiEnabled = modeSelector.value === "ai";
+  userColor = colorToggle.value;
+  aiColor = userColor === "white" ? "black" : "white";
+  createBoard();
+  if (aiEnabled && game.turn() !== userColor[0]) {
+    setTimeout(aiMove, 300);
+  }
+}
+
+function updateBoard() {
+  const squares = boardElement.querySelectorAll(".tile");
+  squares.forEach((tile) => tile.innerHTML = "");
+
+  const position = game.board();
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const piece = position[r][c];
+      if (piece) {
+        const tile = getTile(r, c);
+        const img = document.createElement("img");
+        img.src = `assets/${piece.color}${piece.type.toUpperCase()}.png`;
+        img.classList.add("piece");
+        tile.appendChild(img);
+      }
+    }
+  }
+}
+
+function getTile(r, c) {
+  const idx = userColor === "white" ? r * 8 + c : (7 - r) * 8 + (7 - c);
+  return boardElement.children[idx];
+}
+
+function handleClick(row, col) {
+  if (game.game_over()) return;
+  const square = rowcolToSquare(row, col);
+  const piece = game.get(square);
+
+  if (selected) {
+    if (selected === square) {
+      selected = null;
+      highlightMoves([]);
+      return;
+    }
+    const moves = game.moves({ square: selected, verbose: true });
+    const move = moves.find((m) => m.to === square);
+    if (move) {
+      game.move(move);
+      moveHistory.push(move.san);
+      updateBoard();
+      updateHistory();
+      selected = null;
+      highlightMoves([]);
+      if (timerInterval === null) startTimers();
+      if (game.in_checkmate()) alert("Checkmate!");
+      else if (game.in_draw()) alert("Draw!");
+      if (aiEnabled && game.turn() === aiColor[0]) setTimeout(aiMove, 300);
+    } else {
+      selected = null;
+      highlightMoves([]);
+    }
+  } else {
+    if (!piece || piece.color !== game.turn()) return;
+    selected = square;
+    const moves = game.moves({ square, verbose: true });
+    highlightMoves(moves.map((m) => m.to));
+  }
+}
+
+function rowcolToSquare(r, c) {
+  const files = "abcdefgh";
+  const ranks = "87654321";
+  const file = userColor === "white" ? files[c] : files[7 - c];
+  const rank = userColor === "white" ? ranks[r] : ranks[7 - r];
+  return file + rank;
+}
+
+function highlightMoves(moves) {
+  const tiles = document.querySelectorAll(".tile");
+  tiles.forEach(tile => tile.classList.remove("highlight"));
+  moves.forEach(move => {
+    const r = 8 - parseInt(move[1]);
+    const c = "abcdefgh".indexOf(move[0]);
+    getTile(r, c).classList.add("highlight");
+  });
+}
+
+function updateHistory() {
+  moveHistoryElement.innerHTML = "";
+  for (let i = 0; i < moveHistory.length; i += 2) {
+    const row = document.createElement("div");
+    row.classList.add("history-row");
+    const moveNum = document.createElement("span");
+    moveNum.textContent = `${(i / 2) + 1}.`;
+    const whiteMove = document.createElement("span");
+    whiteMove.textContent = moveHistory[i];
+    const blackMove = document.createElement("span");
+    blackMove.textContent = moveHistory[i + 1] || "";
+    row.append(moveNum, whiteMove, blackMove);
+    moveHistoryElement.appendChild(row);
+  }
+}
+
+function aiMove() {
+  const moves = game.moves();
+  if (moves.length === 0) return;
+  const move = moves[Math.floor(Math.random() * moves.length)];
+  game.move(move);
+  moveHistory.push(move);
+  updateBoard();
+  updateHistory();
+  if (game.in_checkmate()) alert("Checkmate!");
+  else if (game.in_draw()) alert("Draw!");
+}
+
+function resetTimers() {
+  clearInterval(timerInterval);
+  timerWhite = 0;
+  timerBlack = 0;
+  updateTimerDisplay();
+  timerInterval = null;
+}
+
+function startTimers() {
+  const limit = parseInt(timerSelector.value);
+  if (!limit) return;
+  timerInterval = setInterval(() => {
+    if (game.turn() === "w") timerWhite++;
+    else timerBlack++;
+    updateTimerDisplay();
+    if (limit && (timerWhite >= limit * 60 || timerBlack >= limit * 60)) {
+      clearInterval(timerInterval);
+      alert("Time's up!");
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const format = (t) => String(Math.floor(t / 60)).padStart(2, '0') + ":" + String(t % 60).padStart(2, '0');
+  document.getElementById("whiteTimer").textContent = "White: " + format(timerWhite);
+  document.getElementById("blackTimer").textContent = "Black: " + format(timerBlack);
+}
+
+function updateTheme() {
+  document.body.className = themeSelector.value;
+}
+
+themeSelector.addEventListener("change", updateTheme);
+newGameBtn.addEventListener("click", initializeGame);
+modeSelector.addEventListener("change", () => {
+  document.getElementById("colorToggleWrapper").style.display = modeSelector.value === "ai" ? "inline-block" : "none";
+});
+colorToggle.addEventListener("change", () => {
+  userColor = colorToggle.value;
+  aiColor = userColor === "white" ? "black" : "white";
+  createBoard();
+  updateBoard();
 });
 
-document.getElementById('flipBoardBtn').addEventListener('click', () => {
-  board.flip();
-});
-
-// Initialize
-updateStatus();
-startTimers();
+initializeGame();
