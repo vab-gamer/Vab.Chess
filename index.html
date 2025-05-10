@@ -1,41 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vab.Chess - Play Free Online Chess</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vab.Chess</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><span class="brand-vab">Vab</span><span class="brand-chess">.Chess</span></h1>
-      <div class="controls">
-        <button id="newGameBtn">New Game</button>
-        <button id="flipBoardBtn">Flip Board</button>
-      </div>
-    </header>
+  <header>
+    <h1>Vab.Chess</h1>
+    <p>by Vab-Gamer | Sponsored by ~Ritikesh Singh</p>
+  </header>
 
-    <div class="game-area">
-      <div id="board"></div>
-      
-      <div class="panel">
-        <div class="move-history-container">
-          <h3>Move History</h3>
-          <div id="moveHistory" class="move-history"></div>
-        </div>
-        <div id="gameStatus" class="game-status">White's turn</div>
-        <div class="timer-container">
-          <div class="timer white-timer" id="whiteTimer">10:00</div>
-          <div class="timer black-timer" id="blackTimer">10:00</div>
-        </div>
-      </div>
+  <div class="top-controls">
+    <button id="newGameBtn">New Game</button>
+    <select id="themeSelector">
+      <option value="classic">Classic</option>
+      <option value="dark">Dark</option>
+      <option value="wood">Wood</option>
+    </select>
+
+    <label>
+      Timer:
+      <select id="timerSelector">
+        <option value="0">None</option>
+        <option value="5">5 min</option>
+        <option value="10">10 min</option>
+        <option value="15">15 min</option>
+      </select>
+    </label>
+
+    <label>
+      Mode:
+      <select id="modeSelector">
+        <option value="human">Human vs Human</option>
+        <option value="ai">Human vs Computer</option>
+      </select>
+    </label>
+
+    <label id="colorToggleWrapper">
+      Your Color:
+      <select id="colorToggle">
+        <option value="white">White</option>
+        <option value="black">Black</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="main-container">
+    <div class="board-container">
+      <div id="chessBoard" class="board"></div>
+    </div>
+    <div class="info-panel">
+      <h2>Move History</h2>
+      <div id="moveHistory" class="move-history"></div>
+
+      <h2>Timer</h2>
+      <div id="whiteTimer" class="timer">White: 00:00</div>
+      <div id="blackTimer" class="timer">Black: 00:00</div>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <footer>
+    <p>Made by Vab-Gamer | Sponsored by ~Ritikesh Singh</p>
+  </footer>
+
   <script src="script.js"></script>
 </body>
-</html>
+                                                   </html>
